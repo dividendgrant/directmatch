@@ -31,14 +31,14 @@ export async function POST(req: NextRequest) {
   if (apiKey) {
     const emailSubject = subject
       ? `Contact: ${subject} – ${name}`
-      : `New Lead: ${name} — ${domainInterest || formType}`;
+      : `New INQ: ${name} — ${domainInterest || formType}`;
 
     try {
       await fetch("https://api.resend.com/emails", {
         method: "POST",
         headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          from: "DirectMatch Leads <noreply@hammerfinancial.com>",
+          from: "DirectMatch INQs <noreply@hammerfinancial.com>",
           to: [process.env.NOTIFY_EMAIL ?? "domains@digitalnomads.com"],
           reply_to: email,
           subject: emailSubject,
