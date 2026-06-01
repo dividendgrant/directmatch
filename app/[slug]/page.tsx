@@ -24,9 +24,6 @@ export default async function DomainPage({ params }: { params: Promise<{ slug: s
   const domain = domains.find((d) => d.slug === slug);
   if (!domain) notFound();
 
-  // Hidden tracker value: slug without hyphens (e.g. "clovervalley")
-  const domainTracker = domain.slug.replace(/-/g, "");
-
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
       <Suspense fallback={null}><SourceNotice /></Suspense>
@@ -40,7 +37,7 @@ export default async function DomainPage({ params }: { params: Promise<{ slug: s
       </p>
 
       <Suspense fallback={null}>
-        <LeadFormA prefilledDomain={domainTracker} />
+        <LeadFormA prefilledDomain={domain.domainName} />
       </Suspense>
     </div>
   );
