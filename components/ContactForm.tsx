@@ -63,31 +63,31 @@ export default function ContactForm() {
 
       <div>
         <label htmlFor="c-first-name" className="block text-sm mb-1">First Name</label>
-        <input id="c-first-name" name="firstName" type="text" autoComplete="given-name" className={inputClass} {...register("firstName")} />
+        <input id="c-first-name" type="text" autoComplete="given-name" className={inputClass} {...register("firstName")} />
         {errors.firstName && <p className="text-red-600 text-xs mt-1">{errors.firstName.message}</p>}
       </div>
 
       <div>
         <label htmlFor="c-last-name" className="block text-sm mb-1">Last Name</label>
-        <input id="c-last-name" name="lastName" type="text" autoComplete="family-name" className={inputClass} {...register("lastName")} />
+        <input id="c-last-name" type="text" autoComplete="family-name" className={inputClass} {...register("lastName")} />
         {errors.lastName && <p className="text-red-600 text-xs mt-1">{errors.lastName.message}</p>}
       </div>
 
       <div>
         <label htmlFor="c-email" className="block text-sm mb-1">Email</label>
-        <input id="c-email" name="email" type="email" autoComplete="email" className={inputClass} {...register("email")} />
+        <input id="c-email" type="email" autoComplete="email" className={inputClass} {...register("email")} />
         {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email.message}</p>}
       </div>
 
       <div>
         <label htmlFor="c-subject" className="block text-sm mb-1">Subject</label>
-        <input id="c-subject" name="subject" type="text" autoComplete="off" className={inputClass} {...register("subject")} />
+        <input id="c-subject" type="text" autoComplete="off" className={inputClass} {...register("subject")} />
         {errors.subject && <p className="text-red-600 text-xs mt-1">{errors.subject.message}</p>}
       </div>
 
       <div>
         <label htmlFor="c-message" className="block text-sm mb-1">Your Message</label>
-        <textarea id="c-message" name="message" rows={5} autoComplete="off" className={inputClass} {...register("message")} />
+        <textarea id="c-message" rows={5} autoComplete="off" className={inputClass} {...register("message")} />
         {errors.message && <p className="text-red-600 text-xs mt-1">{errors.message.message}</p>}
       </div>
 

@@ -94,31 +94,31 @@ export default function LeadFormA({
       {showDomainField && (
         <div>
           <label htmlFor="a-domain" className="block text-sm mb-1">Domain Name <span className="text-red-500">*</span></label>
-          <input id="a-domain" name="domainName" type="text" placeholder="e.g. MyDomain.com" autoComplete="off" className={inputClass} {...register("domainName")} />
+          <input id="a-domain" type="text" placeholder="e.g. MyDomain.com" autoComplete="off" className={inputClass} {...register("domainName")} />
           {errors.domainName && <p className="text-red-600 text-xs mt-1">{errors.domainName.message}</p>}
         </div>
       )}
 
       <div>
         <label htmlFor="a-name" className="block text-sm mb-1">Name</label>
-        <input id="a-name" name="name" type="text" autoComplete="name" className={inputClass} {...register("name")} />
+        <input id="a-name" type="text" autoComplete="name" className={inputClass} {...register("name")} />
         {errors.name && <p className="text-red-600 text-xs mt-1">{errors.name.message}</p>}
       </div>
 
       <div>
         <label htmlFor="a-phone" className="block text-sm mb-1">Phone / Mobile</label>
-        <input id="a-phone" name="phone" type="tel" autoComplete="tel" className={inputClass} {...register("phone")} />
+        <input id="a-phone" type="tel" autoComplete="tel" className={inputClass} {...register("phone")} />
       </div>
 
       <div>
         <label htmlFor="a-email" className="block text-sm mb-1">Email</label>
-        <input id="a-email" name="email" type="email" autoComplete="email" className={inputClass} {...register("email")} />
+        <input id="a-email" type="email" autoComplete="email" className={inputClass} {...register("email")} />
         {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email.message}</p>}
       </div>
 
       <div>
         <label htmlFor="a-offer" className="block text-sm mb-1">{lastFieldLabel}</label>
-        <input id="a-offer" name="offer" type="text" placeholder={lastFieldPlaceholder} autoComplete="off" className={inputClass} {...register("offer")} />
+        <input id="a-offer" type="text" placeholder={lastFieldPlaceholder} autoComplete="off" className={inputClass} {...register("offer")} />
       </div>
 
       {errors.root && <p className="text-red-600 text-sm">{errors.root.message}</p>}
