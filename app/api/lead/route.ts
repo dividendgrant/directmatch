@@ -23,15 +23,7 @@ export async function POST(req: NextRequest) {
     }
     const { honeypot: _, ...data } = parsed.data;
 
-    // Save to DB if available (SQLite locally, skipped on Workers until D1 is wired up)
-    try {
-      const { prisma } = await import("@/lib/prisma");
-      await prisma.lead.create({ data });
-    } catch {
-      // DB unavailable on this environment — continue to email
-    }
-
-    // Always send email notification when RESEND_API_KEY is set
+    // Send email notification when RESEND_API_KEY is set
     const apiKey = process.env.RESEND_API_KEY;
     if (apiKey) {
       const emailSubject = data.subject
