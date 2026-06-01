@@ -55,38 +55,39 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-lg">
-      {/* Honeypot — outside RHF, hidden via CSS only */}
+      {/* Honeypot — hidden from users, catches bots */}
       <div style={{ position: "absolute", left: "-9999px", height: 0, overflow: "hidden" }}>
-        <input type="text" ref={honeypotRef} tabIndex={-1} autoComplete="off" />
+        <label htmlFor="c-website">Website</label>
+        <input id="c-website" name="website" type="text" ref={honeypotRef} tabIndex={-1} autoComplete="off" />
       </div>
 
       <div>
-        <label className="block text-sm mb-1">First Name</label>
-        <input type="text" className={inputClass} {...register("firstName")} />
+        <label htmlFor="c-first-name" className="block text-sm mb-1">First Name</label>
+        <input id="c-first-name" name="firstName" type="text" autoComplete="given-name" className={inputClass} {...register("firstName")} />
         {errors.firstName && <p className="text-red-600 text-xs mt-1">{errors.firstName.message}</p>}
       </div>
 
       <div>
-        <label className="block text-sm mb-1">Last Name</label>
-        <input type="text" className={inputClass} {...register("lastName")} />
+        <label htmlFor="c-last-name" className="block text-sm mb-1">Last Name</label>
+        <input id="c-last-name" name="lastName" type="text" autoComplete="family-name" className={inputClass} {...register("lastName")} />
         {errors.lastName && <p className="text-red-600 text-xs mt-1">{errors.lastName.message}</p>}
       </div>
 
       <div>
-        <label className="block text-sm mb-1">Email</label>
-        <input type="email" className={inputClass} {...register("email")} />
+        <label htmlFor="c-email" className="block text-sm mb-1">Email</label>
+        <input id="c-email" name="email" type="email" autoComplete="email" className={inputClass} {...register("email")} />
         {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email.message}</p>}
       </div>
 
       <div>
-        <label className="block text-sm mb-1">Subject</label>
-        <input type="text" className={inputClass} {...register("subject")} />
+        <label htmlFor="c-subject" className="block text-sm mb-1">Subject</label>
+        <input id="c-subject" name="subject" type="text" autoComplete="off" className={inputClass} {...register("subject")} />
         {errors.subject && <p className="text-red-600 text-xs mt-1">{errors.subject.message}</p>}
       </div>
 
       <div>
-        <label className="block text-sm mb-1">Your Message</label>
-        <textarea rows={5} className={inputClass} {...register("message")} />
+        <label htmlFor="c-message" className="block text-sm mb-1">Your Message</label>
+        <textarea id="c-message" name="message" rows={5} autoComplete="off" className={inputClass} {...register("message")} />
         {errors.message && <p className="text-red-600 text-xs mt-1">{errors.message.message}</p>}
       </div>
 

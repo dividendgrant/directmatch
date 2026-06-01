@@ -60,37 +60,38 @@ export default function LeadFormB() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-lg">
-      {/* Honeypot — outside RHF, hidden via CSS only */}
+      {/* Honeypot — hidden from users, catches bots */}
       <div style={{ position: "absolute", left: "-9999px", height: 0, overflow: "hidden" }}>
-        <input type="text" ref={honeypotRef} tabIndex={-1} autoComplete="off" />
+        <label htmlFor="b-website">Website</label>
+        <input id="b-website" name="website" type="text" ref={honeypotRef} tabIndex={-1} autoComplete="off" />
       </div>
 
       <div>
-        <label className="block text-sm mb-1">Domain name you want</label>
-        <input type="text" placeholder="e.g. MyBrand.com" className={inputClass} {...register("domainInterest")} />
+        <label htmlFor="b-domain" className="block text-sm mb-1">Domain name you want</label>
+        <input id="b-domain" name="domainInterest" type="text" placeholder="e.g. MyBrand.com" autoComplete="off" className={inputClass} {...register("domainInterest")} />
         {errors.domainInterest && <p className="text-red-600 text-xs mt-1">{errors.domainInterest.message}</p>}
       </div>
 
       <div>
-        <label className="block text-sm mb-1">Name</label>
-        <input type="text" className={inputClass} {...register("name")} />
+        <label htmlFor="b-name" className="block text-sm mb-1">Name</label>
+        <input id="b-name" name="name" type="text" autoComplete="name" className={inputClass} {...register("name")} />
         {errors.name && <p className="text-red-600 text-xs mt-1">{errors.name.message}</p>}
       </div>
 
       <div>
-        <label className="block text-sm mb-1">Phone / Mobile</label>
-        <input type="tel" className={inputClass} {...register("phone")} />
+        <label htmlFor="b-phone" className="block text-sm mb-1">Phone / Mobile</label>
+        <input id="b-phone" name="phone" type="tel" autoComplete="tel" className={inputClass} {...register("phone")} />
       </div>
 
       <div>
-        <label className="block text-sm mb-1">Email</label>
-        <input type="email" className={inputClass} {...register("email")} />
+        <label htmlFor="b-email" className="block text-sm mb-1">Email</label>
+        <input id="b-email" name="email" type="email" autoComplete="email" className={inputClass} {...register("email")} />
         {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email.message}</p>}
       </div>
 
       <div>
-        <label className="block text-sm mb-1">Your Offer</label>
-        <input type="text" placeholder="e.g. $5,000" className={inputClass} {...register("offer")} />
+        <label htmlFor="b-offer" className="block text-sm mb-1">Your Offer</label>
+        <input id="b-offer" name="offer" type="text" placeholder="e.g. $5,000" autoComplete="off" className={inputClass} {...register("offer")} />
       </div>
 
       {errors.root && <p className="text-red-600 text-sm">{errors.root.message}</p>}
