@@ -33,27 +33,31 @@ export async function POST(req: NextRequest) {
       ? `Contact: ${subject} – ${name}`
       : `New Lead: ${name} — ${domainInterest || formType}`;
 
-    fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        from: "DirectMatch Leads <noreply@hammerfinancial.com>",
-        to: [process.env.NOTIFY_EMAIL ?? "domains@digitalnomads.com"],
-        reply_to: email,
-        subject: emailSubject,
-        text: [
-          `Name: ${name}`,
-          `Email: ${email}`,
-          `Phone: ${phone || "N/A"}`,
-          `Domain: ${domainInterest || "N/A"}`,
-          `Offer/Price: ${offer || "N/A"}`,
-          `Subject: ${subject || "N/A"}`,
-          `Source: ${source || "Direct"}`,
-          `Form: ${formType}`,
-          `\nMessage:\n${message || "N/A"}`,
-        ].join("\n"),
-      }),
-    }).catch((err) => console.error("Resend error:", err));
+    try {
+      await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: "DirectMatch Leads <noreply@hammerfinancial.com>",
+          to: [process.env.NOTIFY_EMAIL ?? "domains@digitalnomads.com"],
+          reply_to: email,
+          subject: emailSubject,
+          text: [
+            `Name: ${name}`,
+            `Email: ${email}`,
+            `Phone: ${phone || "N/A"}`,
+            `Domain: ${domainInterest || "N/A"}`,
+            `Offer/Price: ${offer || "N/A"}`,
+            `Subject: ${subject || "N/A"}`,
+            `Source: ${source || "Direct"}`,
+            `Form: ${formType}`,
+            `\nMessage:\n${message || "N/A"}`,
+          ].join("\n"),
+        }),
+      });
+    } catch (err) {
+      console.error("Resend error:", err);
+    }
   }
 
   return NextResponse.json({ ok: true });
