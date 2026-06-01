@@ -1,4 +1,5 @@
 "use client";
+import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -10,7 +11,6 @@ const schema = z.object({
   phone: z.string().optional(),
   email: z.string().email("Please enter a valid email"),
   offer: z.string().optional(),
-  honeypot: z.string().max(0),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -35,6 +35,7 @@ export default function LeadFormA({
 }: Props) {
   const searchParams = useSearchParams();
   const resolvedSource = source ?? searchParams.get("ref") ?? "";
+  const honeypotRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -61,7 +62,7 @@ export default function LeadFormA({
           offer: data.offer ?? "",
           source: resolvedSource,
           formType: showDomainField ? "sell-inquiry" : "domain-inquiry",
-          honeypot: data.honeypot,
+          honeypot: honeypotRef.current?.value ?? "",
         }),
       });
 
@@ -78,9 +79,9 @@ export default function LeadFormA({
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-lg">
-      {/* Honeypot */}
-      <div aria-hidden="true" style={{ position: "absolute", left: "-9999px" }}>
-        <input type="text" tabIndex={-1} autoComplete="off" {...register("honeypot")} />
+      {/* Honeypot — outside RHF, hidden via CSS only */}
+      <div style={{ position: "absolute", left: "-9999px", height: 0, overflow: "hidden" }}>
+        <input type="text" ref={honeypotRef} tabIndex={-1} autoComplete="off" />
       </div>
 
       {/* Hidden domain tracker (for individual domain pages) */}

@@ -1,4 +1,5 @@
 "use client";
+import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,7 +10,6 @@ const schema = z.object({
   email: z.string().email("Please enter a valid email"),
   subject: z.string().min(1, "Subject is required"),
   message: z.string().min(1, "Message is required"),
-  honeypot: z.string().max(0),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -18,6 +18,8 @@ const inputClass =
   "w-full border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:border-[#1a4c72]";
 
 export default function ContactForm() {
+  const honeypotRef = useRef<HTMLInputElement>(null);
+
   const {
     register,
     handleSubmit,
@@ -36,7 +38,7 @@ export default function ContactForm() {
           subject: data.subject,
           message: data.message,
           formType: "contact",
-          honeypot: data.honeypot,
+          honeypot: honeypotRef.current?.value ?? "",
         }),
       });
 
@@ -53,9 +55,9 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-w-lg">
-      {/* Honeypot */}
-      <div aria-hidden="true" style={{ position: "absolute", left: "-9999px" }}>
-        <input type="text" tabIndex={-1} autoComplete="off" {...register("honeypot")} />
+      {/* Honeypot — outside RHF, hidden via CSS only */}
+      <div style={{ position: "absolute", left: "-9999px", height: 0, overflow: "hidden" }}>
+        <input type="text" ref={honeypotRef} tabIndex={-1} autoComplete="off" />
       </div>
 
       <div>
