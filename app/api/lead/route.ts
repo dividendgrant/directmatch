@@ -1,39 +1,37 @@
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
-
-const schema = z.object({
-  name: z.string().min(2).max(100),
-  email: z.string().email(),
-  phone: z.string().optional(),
-  message: z.string().optional(),
-  domainInterest: z.string().optional(),
-  offer: z.string().optional(),
-  subject: z.string().optional(),
-  source: z.string().optional(),
-  formType: z.string(),
-  honeypot: z.string().max(0, "Bot detected"),
-});
 
 export async function POST(req: NextRequest) {
-  let body: unknown;
+  let body: Record<string, unknown>;
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
-  const parsed = schema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json({ error: "Validation failed", details: parsed.error.flatten() }, { status: 400 });
-  }
-  const { honeypot: _, ...data } = parsed.data;
+  const name = typeof body.name === "string" ? body.name.trim() : "";
+  const email = typeof body.email === "string" ? body.email.trim() : "";
+  const formType = typeof body.formType === "string" ? body.formType : "";
+  const honeypot = typeof body.honeypot === "string" ? body.honeypot : "";
 
-  // Fire-and-forget email — never let email errors fail the form submission
+  if (name.length < 2 || !email.includes("@") || !formType) {
+    return NextResponse.json({ error: "Validation failed" }, { status: 400 });
+  }
+  if (honeypot.length > 0) {
+    return NextResponse.json({ error: "Bot detected" }, { status: 400 });
+  }
+
+  const phone = typeof body.phone === "string" ? body.phone : "";
+  const message = typeof body.message === "string" ? body.message : "";
+  const domainInterest = typeof body.domainInterest === "string" ? body.domainInterest : "";
+  const offer = typeof body.offer === "string" ? body.offer : "";
+  const subject = typeof body.subject === "string" ? body.subject : "";
+  const source = typeof body.source === "string" ? body.source : "";
+
   const apiKey = process.env.RESEND_API_KEY;
   if (apiKey) {
-    const emailSubject = data.subject
-      ? `Contact: ${data.subject} – ${data.name}`
-      : `New Lead: ${data.name} — ${data.domainInterest ?? data.formType}`;
+    const emailSubject = subject
+      ? `Contact: ${subject} – ${name}`
+      : `New Lead: ${name} — ${domainInterest || formType}`;
 
     fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -41,18 +39,18 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         from: "DirectMatch Leads <noreply@hammerfinancial.com>",
         to: [process.env.NOTIFY_EMAIL ?? "domains@digitalnomads.com"],
-        reply_to: data.email,
+        reply_to: email,
         subject: emailSubject,
         text: [
-          `Name: ${data.name}`,
-          `Email: ${data.email}`,
-          `Phone: ${data.phone ?? "N/A"}`,
-          `Domain: ${data.domainInterest ?? "N/A"}`,
-          `Offer/Price: ${data.offer ?? "N/A"}`,
-          `Subject: ${data.subject ?? "N/A"}`,
-          `Source: ${data.source ?? "Direct"}`,
-          `Form: ${data.formType}`,
-          `\nMessage:\n${data.message ?? "N/A"}`,
+          `Name: ${name}`,
+          `Email: ${email}`,
+          `Phone: ${phone || "N/A"}`,
+          `Domain: ${domainInterest || "N/A"}`,
+          `Offer/Price: ${offer || "N/A"}`,
+          `Subject: ${subject || "N/A"}`,
+          `Source: ${source || "Direct"}`,
+          `Form: ${formType}`,
+          `\nMessage:\n${message || "N/A"}`,
         ].join("\n"),
       }),
     }).catch((err) => console.error("Resend error:", err));
