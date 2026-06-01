@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
         method: "POST",
         headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          from: "DirectMatch Leads <noreply@directmatch.com>",
+          from: "DirectMatch Leads <noreply@hammerfinancial.com>",
           to: [process.env.NOTIFY_EMAIL ?? "domains@digitalnomads.com"],
           reply_to: data.email,
           subject: emailSubject,
