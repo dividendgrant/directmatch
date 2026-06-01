@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
 
 const schema = z.object({
   name: z.string().min(2).max(100),
@@ -24,8 +23,15 @@ export async function POST(req: NextRequest) {
     }
     const { honeypot: _, ...data } = parsed.data;
 
-    const lead = await prisma.lead.create({ data });
+    // Save to DB if available (SQLite locally, skipped on Workers until D1 is wired up)
+    try {
+      const { prisma } = await import("@/lib/prisma");
+      await prisma.lead.create({ data });
+    } catch {
+      // DB unavailable on this environment — continue to email
+    }
 
+    // Always send email notification when RESEND_API_KEY is set
     const apiKey = process.env.RESEND_API_KEY;
     if (apiKey) {
       const emailSubject = data.subject
@@ -45,7 +51,7 @@ export async function POST(req: NextRequest) {
             `Email: ${data.email}`,
             `Phone: ${data.phone ?? "N/A"}`,
             `Domain: ${data.domainInterest ?? "N/A"}`,
-            `Offer: ${data.offer ?? "N/A"}`,
+            `Offer/Price: ${data.offer ?? "N/A"}`,
             `Subject: ${data.subject ?? "N/A"}`,
             `Source: ${data.source ?? "Direct"}`,
             `Form: ${data.formType}`,
@@ -55,7 +61,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    return NextResponse.json({ ok: true, id: lead.id });
+    return NextResponse.json({ ok: true });
   } catch (err) {
     console.error(err);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
