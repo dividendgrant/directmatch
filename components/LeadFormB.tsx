@@ -10,7 +10,10 @@ const schema = z.object({
   name: z.string().min(2, "Name is required"),
   phone: z.string().optional(),
   email: z.string().email("Please enter a valid email"),
-  offer: z.string().optional(),
+  offer: z
+    .string()
+    .min(1, "Offer amount is required")
+    .regex(/^\$?[\d,]+(\.\d{1,2})?$/, "Must be a dollar amount (e.g. $5,000)"),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -90,8 +93,9 @@ export default function LeadFormB() {
       </div>
 
       <div>
-        <label htmlFor="b-offer" className="block text-sm mb-1">Your Offer</label>
+        <label htmlFor="b-offer" className="block text-sm mb-1">Your Offer <span className="text-red-500">*</span></label>
         <input id="b-offer" type="text" placeholder="e.g. $5,000" autoComplete="off" className={inputClass} {...register("offer")} />
+        {errors.offer && <p className="text-red-600 text-xs mt-1">{errors.offer.message}</p>}
       </div>
 
       {errors.root && <p className="text-red-600 text-sm">{errors.root.message}</p>}

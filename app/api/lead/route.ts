@@ -23,7 +23,14 @@ export async function POST(req: NextRequest) {
   const phone = typeof body.phone === "string" ? body.phone : "";
   const message = typeof body.message === "string" ? body.message : "";
   const domainInterest = typeof body.domainInterest === "string" ? body.domainInterest : "";
-  const offer = typeof body.offer === "string" ? body.offer : "";
+  const offer = typeof body.offer === "string" ? body.offer.trim() : "";
+
+  // Offer must be a dollar amount for all domain inquiry forms
+  const OFFER_REQUIRED_FORMS = ["domain-inquiry", "buy-inquiry", "sell-inquiry"];
+  const DOLLAR_AMOUNT = /^\$?[\d,]+(\.\d{1,2})?$/;
+  if (OFFER_REQUIRED_FORMS.includes(formType) && !DOLLAR_AMOUNT.test(offer)) {
+    return NextResponse.json({ error: "Invalid offer amount" }, { status: 400 });
+  }
   const subject = typeof body.subject === "string" ? body.subject : "";
   const source = typeof body.source === "string" ? body.source : "";
 
