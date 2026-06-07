@@ -6,7 +6,10 @@ import { z } from "zod";
 import { useSearchParams } from "next/navigation";
 
 const schema = z.object({
-  domainInterest: z.string().min(1, "Please enter the domain name you want"),
+  domainInterest: z
+    .string()
+    .min(1, "Please enter the domain name you want")
+    .regex(/^[^\s]+\.[^\s]+$/, "Please include the extension (e.g. MyBrand.com)"),
   name: z.string().min(2, "Name is required"),
   phone: z.string().optional(),
   email: z.string().email("Please enter a valid email"),

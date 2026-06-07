@@ -54,6 +54,10 @@ export default function LeadFormA({
       setError("domainName", { message: "Domain name is required" });
       return;
     }
+    if (showDomainField && !/^[^\s]+\.[^\s]+$/.test(data.domainName?.trim() ?? "")) {
+      setError("domainName", { message: "Please include the extension (e.g. MyDomain.com)" });
+      return;
+    }
 
     try {
       const res = await fetch("/api/lead/", {

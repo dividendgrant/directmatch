@@ -25,6 +25,13 @@ export async function POST(req: NextRequest) {
   const domainInterest = typeof body.domainInterest === "string" ? body.domainInterest : "";
   const offer = typeof body.offer === "string" ? body.offer.trim() : "";
 
+  // Domain must contain a dot (e.g. EmanuelVaz.com, not "Emanuel Vaz")
+  const DOMAIN_FORMS = ["domain-inquiry", "buy-inquiry", "sell-inquiry"];
+  const HAS_DOT = /^[^\s]+\.[^\s]+$/;
+  if (DOMAIN_FORMS.includes(formType) && domainInterest && !HAS_DOT.test(domainInterest)) {
+    return NextResponse.json({ error: "Invalid domain name" }, { status: 400 });
+  }
+
   // Offer must be a dollar amount for all domain inquiry forms
   const OFFER_REQUIRED_FORMS = ["domain-inquiry", "buy-inquiry", "sell-inquiry"];
   const DOLLAR_AMOUNT = /^\$?[\d,]+(\.\d{1,2})?$/;
