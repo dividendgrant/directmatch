@@ -8,7 +8,6 @@ const schema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
   email: z.string().email("Please enter a valid email"),
-  subject: z.string().min(1, "Subject is required"),
   message: z.string().min(1, "Message is required"),
 });
 
@@ -35,7 +34,6 @@ export default function ContactForm() {
         body: JSON.stringify({
           name: `${data.firstName} ${data.lastName}`,
           email: data.email,
-          subject: data.subject,
           message: data.message,
           formType: "contact",
           honeypot: honeypotRef.current?.value ?? "",
@@ -80,13 +78,7 @@ export default function ContactForm() {
       </div>
 
       <div>
-        <label htmlFor="c-subject" className="block text-sm mb-1">Subject</label>
-        <input id="c-subject" type="text" autoComplete="off" className={inputClass} {...register("subject")} />
-        {errors.subject && <p className="text-red-600 text-xs mt-1">{errors.subject.message}</p>}
-      </div>
-
-      <div>
-        <label htmlFor="c-message" className="block text-sm mb-1">Your Message</label>
+        <label htmlFor="c-message" className="block text-sm mb-1">Message</label>
         <textarea id="c-message" rows={5} autoComplete="off" className={inputClass} {...register("message")} />
         {errors.message && <p className="text-red-600 text-xs mt-1">{errors.message.message}</p>}
       </div>
