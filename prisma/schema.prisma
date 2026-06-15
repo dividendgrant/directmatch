@@ -19,3 +19,13 @@ model Lead {
   formType       String
   createdAt      DateTime @default(now())
 }
+
+model PageView {
+  id        Int      @id @default(autoincrement())
+  slug      String
+  country   String   @default("Unknown")
+  createdAt DateTime @default(now())
+
+  @@index([slug])
+  @@index([createdAt])
+}

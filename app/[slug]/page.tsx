@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import domains from "@/data/domains.json";
 import LeadFormA from "@/components/LeadFormA";
 import SourceNotice from "@/components/SourceNotice";
+import PageViewTracker from "@/components/PageViewTracker";
 
 export async function generateStaticParams() {
   return domains.map((d) => ({ slug: d.slug }));
@@ -26,6 +27,7 @@ export default async function DomainPage({ params }: { params: Promise<{ slug: s
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-12">
+      <PageViewTracker slug={domain.slug} />
       <Suspense fallback={null}><SourceNotice /></Suspense>
 
       <h1 className="text-3xl font-bold text-gray-900 mb-2">
