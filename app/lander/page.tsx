@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import LeadFormA from "@/components/LeadFormA";
@@ -34,6 +35,13 @@ export default async function LanderPage({
 }) {
   const { d } = await searchParams;
   const domain = (d || "").toLowerCase().trim();
+
+  // Safety net: if domain is missing or looks invalid, send to buy page
+  const looksValid = domain.length > 0 && domain.includes(".");
+  if (!looksValid) {
+    redirect("/buy-a-domain-name/");
+  }
+
   const display = formatDisplay(domain);
 
   // Server-side visit logging — Cloudflare injects CF-IPCountry on every request
