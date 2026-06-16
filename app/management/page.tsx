@@ -4,6 +4,14 @@ import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
+type TrafficRow = {
+  slug: string;
+  total: number;
+  us: number;
+  foreign: number;
+  topForeign: [string, number][];
+};
+
 export const metadata: Metadata = {
   title: "Domain Portfolio Management",
   description: "Professional domain portfolio management services for investors and enterprises. DirectMatch.com handles renewals, valuations, and strategic sales.",
@@ -83,7 +91,13 @@ function flag(code: string) {
 }
 
 export default async function ManagementPage() {
-  const traffic = await getTrafficData();
+  let traffic: TrafficRow[] = [];
+  let dbAvailable = true;
+  try {
+    traffic = await getTrafficData();
+  } catch {
+    dbAvailable = false;
+  }
   const totalViews = traffic.reduce((a, b) => a + b.total, 0);
   const totalForeign = traffic.reduce((a, b) => a + b.foreign, 0);
 
@@ -98,7 +112,11 @@ export default async function ManagementPage() {
           traffic that you may want to redirect or remove.
         </p>
 
-        {totalViews === 0 ? (
+        {!dbAvailable ? (
+          <div className="border border-gray-200 rounded-xl p-8 text-center text-gray-400 text-sm">
+            Traffic data is only available when running locally. Visit this page on your local dev server to view domain analytics.
+          </div>
+        ) : totalViews === 0 ? (
           <div className="border border-gray-200 rounded-xl p-8 text-center text-gray-400 text-sm">
             No page views recorded yet. Traffic will appear here once visitors start hitting domain pages.
           </div>
