@@ -38,20 +38,28 @@ if (existsSync(envPath)) {
 
 const CF_TOKEN = process.env.CF_API_TOKEN;
 const CF_ACCOUNT = process.env.CF_ACCOUNT_ID;
+const CF_EMAIL = process.env.CF_API_EMAIL;
+const CF_KEY = process.env.CF_API_KEY;
 const TARGET = "directmatch.com";
 
-if (!CF_TOKEN || !CF_ACCOUNT) {
+// Two auth modes:
+//   - Global API Key (email + key): full account access, can create zones
+//   - Scoped Bearer token: only works if it has zone-create permission
+const useGlobalKey = Boolean(CF_EMAIL && CF_KEY);
+
+if (!CF_ACCOUNT || (!useGlobalKey && !CF_TOKEN)) {
   console.error(`
 ❌  Missing environment variables.
 
-Add these to your .env file:
-  CF_API_TOKEN=your_cloudflare_api_token
+Recommended (can create zones) — add to .env:
+  CF_API_EMAIL=your_cloudflare_login_email
+  CF_API_KEY=your_global_api_key
   CF_ACCOUNT_ID=your_cloudflare_account_id
 
-Get your API token at: dash.cloudflare.com/profile/api-tokens
-  Template: "Edit zone DNS", Zone Resources: All zones
+Get Global API Key: dash.cloudflare.com/profile/api-tokens
+  → "Global API Key" → View
 
-Get your Account ID from: Cloudflare dashboard → right sidebar
+Get Account ID from: Cloudflare dashboard → right sidebar
 `);
   process.exit(1);
 }
@@ -59,11 +67,20 @@ Get your Account ID from: Cloudflare dashboard → right sidebar
 // ── Cloudflare API helpers ───────────────────────────────────────────────────
 const CF = "https://api.cloudflare.com/client/v4";
 
-async function cfFetch(path, options = {}) {
+const authHeaders = useGlobalKey
+  ? { "X-Auth-Email": CF_EMAIL, "X-Auth-Key": CF_KEY }
+  : { Authorization: `Bearer ${CF_TOKEN}` };
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+// Sentinel thrown when the account's pending-zone limit is reached
+class ZoneLimitError extends Error {}
+
+async function cfFetch(path, options = {}, attempt = 0) {
   const res = await fetch(`${CF}${path}`, {
     ...options,
     headers: {
-      Authorization: `Bearer ${CF_TOKEN}`,
+      ...authHeaders,
       "Content-Type": "application/json",
       ...options.headers,
     },
@@ -71,6 +88,14 @@ async function cfFetch(path, options = {}) {
   const json = await res.json();
   if (!json.success) {
     const msg = json.errors?.map((e) => e.message).join(", ") || "Unknown error";
+    // Code 971 = rate limit. Back off and retry up to 5 times.
+    if (json.errors?.some((e) => e.code === 971) && attempt < 5) {
+      await sleep(3000 * (attempt + 1));
+      return cfFetch(path, options, attempt + 1);
+    }
+    if (/exceeded the limit for adding zones/i.test(msg)) {
+      throw new ZoneLimitError(msg);
+    }
     throw new Error(`Cloudflare API error: ${msg}`);
   }
   return json.result;
@@ -161,6 +186,7 @@ console.log(`\nAdding ${domains.length} domain(s) to Cloudflare → ${TARGET}\n`
 let nameservers = null;
 let added = 0;
 let skipped = 0;
+let hitLimit = false;
 
 for (const domain of domains) {
   try {
@@ -172,12 +198,25 @@ for (const domain of domains) {
       skipped++;
     }
   } catch (err) {
+    if (err instanceof ZoneLimitError) {
+      hitLimit = true;
+      console.log("⏸  zone limit reached — stopping");
+      break;
+    }
     console.log(`❌  ${err.message}`);
   }
+  await sleep(1200); // throttle to stay under Cloudflare rate limits
 }
 
 console.log(`\n──────────────────────────────────────────`);
 console.log(`✅  ${added} added   ⚠️  ${skipped} skipped`);
+
+if (hitLimit) {
+  console.log(`
+⏸  Cloudflare's pending-zone limit was reached. Change the nameservers
+   on the domains already added so they activate, then re-run this script
+   to add the rest. Already-added domains are skipped automatically.`);
+}
 
 if (nameservers?.length) {
   console.log(`
