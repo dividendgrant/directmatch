@@ -1,0 +1,6 @@
+# Add one domain per line — blank lines and # comments are ignored
+# Run: node scripts/add-domain.js --file scripts/domains.txt
+#
+# aifin.com
+# dmu.com
+# solholdings.com
