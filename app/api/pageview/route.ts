@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import domains from "@/data/domains.json";
 
-const VALID_SLUGS = new Set(domains.map((d) => d.slug));
-
+// Client-side fallback endpoint — lander pages log server-side directly,
+// but this stays available for any future client-side tracking needs.
 export async function POST(req: NextRequest) {
   let slug: string;
   try {
@@ -13,11 +12,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 
-  if (!slug || !VALID_SLUGS.has(slug)) {
-    return NextResponse.json({ ok: true }); // silently ignore unknown slugs
-  }
+  if (!slug) return NextResponse.json({ ok: true });
 
-  // Cloudflare injects CF-IPCountry on every request automatically (free tier)
   const country =
     req.headers.get("CF-IPCountry") ||
     req.headers.get("cf-ipcountry") ||

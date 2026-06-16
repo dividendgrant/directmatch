@@ -141,9 +141,14 @@ export default async function ManagementPage() {
                     return (
                       <tr key={row.slug} className={isHighForeign ? "bg-amber-50" : "bg-white hover:bg-gray-50"}>
                         <td className="px-4 py-3 font-medium text-[#1a4c72]">
-                          <Link href={`/${row.slug}/`} className="hover:underline" target="_blank">
+                          <a
+                            href={row.slug.includes(".") ? `https://${row.slug}` : `/${row.slug}/`}
+                            className="hover:underline"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
                             {row.slug}
-                          </Link>
+                          </a>
                           {isHighForeign && (
                             <span className="ml-2 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">
                               high foreign
