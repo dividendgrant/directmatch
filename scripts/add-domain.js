@@ -183,7 +183,9 @@ The domains.txt file should have one domain per line.
 // ── Run ──────────────────────────────────────────────────────────────────────
 console.log(`\nAdding ${domains.length} domain(s) to Cloudflare → ${TARGET}\n`);
 
-let nameservers = null;
+// Cloudflare assigns nameservers per-zone — they can differ between domains.
+// Group added domains by their assigned NS pair.
+const nsGroups = {};
 let added = 0;
 let skipped = 0;
 let hitLimit = false;
@@ -193,7 +195,8 @@ for (const domain of domains) {
     const result = await addDomain(domain);
     if (result) {
       added++;
-      nameservers = nameservers ?? result.nameservers; // all domains share the same NS
+      const key = [...result.nameservers].sort().join(" / ");
+      (nsGroups[key] = nsGroups[key] || []).push(result.domain);
     } else {
       skipped++;
     }
@@ -218,12 +221,12 @@ if (hitLimit) {
    to add the rest. Already-added domains are skipped automatically.`);
 }
 
-if (nameservers?.length) {
-  console.log(`
-Set these nameservers at your registrar for all added domains:
-
-  ${nameservers.join("\n  ")}
-
-These are the same for every domain in your Cloudflare account.
-`);
+const groups = Object.entries(nsGroups);
+if (groups.length) {
+  console.log(`\nSet these nameservers at your registrar (grouped by NS pair):`);
+  for (const [ns, ds] of groups) {
+    console.log(`\n  Nameservers: ${ns}`);
+    console.log(ds.map((d) => `    ${d}`).join("\n"));
+  }
+  console.log("");
 }
