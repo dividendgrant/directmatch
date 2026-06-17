@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+
+// Absolute base so buttons work when this renders on a parked domain
+const SITE = "https://directmatch.com";
 
 export const metadata: Metadata = {
   title: "Thank You — Inquiry Received",
@@ -18,18 +20,18 @@ export default function ThankYouPage() {
         In the meantime, feel free to browse more domains in our portfolio.
       </p>
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
-        <Link
-          href="/domain-for-sale/"
+        <a
+          href={`${SITE}/domain-for-sale/`}
           className="bg-[#e8b44a] text-[#1a4c72] px-6 py-3 rounded-lg font-semibold hover:bg-yellow-400 transition-colors"
         >
           Browse Domains For Sale
-        </Link>
-        <Link
-          href="/"
+        </a>
+        <a
+          href={SITE}
           className="border-2 border-[#1a4c72] text-[#1a4c72] px-6 py-3 rounded-lg font-semibold hover:bg-[#1a4c72] hover:text-white transition-colors"
         >
           Back to Homepage
-        </Link>
+        </a>
       </div>
     </div>
   );
