@@ -125,6 +125,18 @@ async function addCname(zoneId, name) {
   });
 }
 
+// A proxied CNAME alone returns HTTP 522 — the Worker that renders the site
+// must be bound to the hostname via a Workers route, or Cloudflare has no
+// origin to serve and the domain is effectively down.
+const WORKER_SCRIPT = "directmatch";
+
+async function addWorkerRoute(zoneId, pattern) {
+  return cfFetch(`/zones/${zoneId}/workers/routes`, {
+    method: "POST",
+    body: JSON.stringify({ pattern, script: WORKER_SCRIPT }),
+  });
+}
+
 // ── Process one domain ───────────────────────────────────────────────────────
 async function addDomain(domain) {
   domain = domain.toLowerCase().trim().replace(/^https?:\/\//, "").replace(/\/$/, "");
@@ -143,6 +155,10 @@ async function addDomain(domain) {
 
   await addCname(zone.id, "@");
   await addCname(zone.id, "www");
+
+  // Bind the Worker so the domain actually serves the site (prevents 522)
+  await addWorkerRoute(zone.id, `${domain}/*`);
+  await addWorkerRoute(zone.id, `www.${domain}/*`);
 
   const ns = zone.name_servers || [];
   console.log(`✅  done`);
