@@ -7,6 +7,13 @@ compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
 directory = ".open-next/assets"
 binding = "ASSETS"
 
+# Lead inquiry store (Cloudflare D1). Logs one row per inquiry so we can
+# tally inquiries per domain; full details still go out via Resend email.
+[[d1_databases]]
+binding = "DB"
+database_name = "directmatch-leads"
+database_id = "83f45f8f-78a5-4b8b-801e-6a552ce69492"
+
 [vars]
 # Set RESEND_API_KEY and NOTIFY_EMAIL in Cloudflare dashboard
 # Workers → directmatch → Settings → Variables and Secrets

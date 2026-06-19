@@ -1,4 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
+
+// Minimal shape of the D1 binding we use (avoids a workers-types dependency)
+interface D1Like {
+  prepare(q: string): { bind(...a: unknown[]): { run(): Promise<unknown> } };
+}
 
 export async function POST(req: NextRequest) {
   let body: Record<string, unknown>;
@@ -72,6 +78,23 @@ export async function POST(req: NextRequest) {
     } catch (err) {
       console.error("Resend error:", err);
     }
+  }
+
+  // Log the inquiry to D1 for per-domain tallying. Best-effort only — a
+  // failure here must never affect the lead (email above is the system of record).
+  try {
+    const { env } = getCloudflareContext();
+    const db = (env as unknown as { DB?: D1Like }).DB;
+    if (db) {
+      await db
+        .prepare(
+          "INSERT INTO inquiries (domain, name, email, offer, form_type, source) VALUES (?, ?, ?, ?, ?, ?)"
+        )
+        .bind(domainInterest || "", name, email, offer || "", formType, source || "")
+        .run();
+    }
+  } catch (err) {
+    console.error("D1 inquiry log error:", err);
   }
 
   return NextResponse.json({ ok: true });
